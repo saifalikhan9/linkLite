@@ -10,6 +10,12 @@ const envSchema = z.object({
     .default("development"),
 
   DATABASE_URL: z.string().min(1),
+
+  JWT_ACCESS_TOKEN_SECRET_KEY: z.string("please provide the access secret key"),
+
+  JWT_REFRESH_TOKEN_SECRET_KEY: z.string(
+    "please provide the refresh secret key",
+  ),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
