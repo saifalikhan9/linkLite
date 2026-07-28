@@ -22,3 +22,7 @@ export const generateAuthToken = (userId: string) => {
   const refreshToken = generateRefreshToken({ id: userId });
   return { accessToken, refreshToken };
 };
+
+export const decodeToken = (token: string) => {
+  jwt.decode(token);
+};
