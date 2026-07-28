@@ -22,11 +22,13 @@ model User {
 }
 
 model Url {
-  id         String   @id @default(uuid())
+  id          String   @id @default(uuid())
   originalUrl String
-  shortCode  String   @unique
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  shortCode   String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }

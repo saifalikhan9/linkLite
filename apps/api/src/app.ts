@@ -1,6 +1,10 @@
 import express from "express";
+
 import healthRouter from "./routes/health.route";
 import authRouter from "./routes/auth.route";
+import urlRouter from "./routes/url.route";
+import redirectRouter from "./routes/redirect.router";
+
 import { errorHandler } from "./errors/error-handlers";
 import { notFound } from "./middlewares/not-found";
 
@@ -10,6 +14,8 @@ app.use(express.json());
 
 app.use("/health", healthRouter);
 app.use("/auth", authRouter);
+app.use("/urls", urlRouter);
+app.use("/", redirectRouter);
 
 app.use(notFound);
 app.use(errorHandler);

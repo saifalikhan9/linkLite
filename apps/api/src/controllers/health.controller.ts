@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { healthService } from "../services/health.service";
+import { healthService } from "../services/health.services";
 
 export const healthController = async (
   _req: Request,

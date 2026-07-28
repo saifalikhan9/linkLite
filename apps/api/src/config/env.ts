@@ -16,6 +16,7 @@ const envSchema = z.object({
   JWT_REFRESH_TOKEN_SECRET_KEY: z.string(
     "please provide the refresh secret key",
   ),
+  BASE62_SECRET_KEY: z.string("please provide the base62 secret key"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
