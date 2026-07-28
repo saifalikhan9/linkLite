@@ -1,10 +1,6 @@
 import { AppError } from "../errors/app-errors";
 import { comparePassword, hashPassword } from "../utils/hashPassword";
-import {
-  generateAccessToken,
-  generateAuthToken,
-  generateRefreshToken,
-} from "../utils/jwt";
+import { generateAuthToken } from "../utils/jwt";
 import { prisma } from "../utils/prisma";
 
 export const createUser = async ({
@@ -65,4 +61,8 @@ export const loginUser = async ({
     accessToken: token.accessToken,
     refreshToken: token.refreshToken,
   };
+};
+
+export const logoutService = async ({ userId }: { userId: string }) => {
+  return true;
 };

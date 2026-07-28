@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/async-handler";
-import { createUser, loginUser } from "../services/auth.services";
-import { success } from "zod";
+import { createUser, loginUser, logoutService } from "../services/auth.services";
+
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -22,3 +22,14 @@ export const loginController = async (req: Request, res: Response) => {
     data: user,
   });
 };
+
+export const logoutController = async (req: Request, res: Response) => {
+  await logoutService({
+    userId: req.user?.id,
+  });
+
+  return res.status(204).send();
+};
+export const refreshToken = async(req:Request, res :Response) =>{
+
+}
