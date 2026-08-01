@@ -1,6 +1,7 @@
+import { ENV } from "../config/env";
 import { AppError } from "../errors/app-errors";
 import { comparePassword, hashPassword } from "../utils/hashPassword";
-import { generateAuthToken } from "../utils/jwt";
+import { decodeToken, generateAuthToken } from "../utils/jwt";
 import { prisma } from "../utils/prisma";
 
 export const createUser = async ({
@@ -10,11 +11,12 @@ export const createUser = async ({
   email: string;
   password: string;
 }) => {
-  const existingUser = await prisma.user.findFirst({
+  const existingUser = await prisma.user.findUnique({
     where: {
-      email: email,
+      email: email.trim(),
     },
   });
+
   if (existingUser) {
     throw new AppError("Email already exists", 400);
   }
@@ -23,18 +25,30 @@ export const createUser = async ({
 
   const user = await prisma.user.create({
     data: {
-      email: email,
-      passwordHash: passwordHash,
+      email: email.trim(),
+      passwordHash,
     },
   });
-  const token = generateAuthToken(user.id);
+
+  const tokens = generateAuthToken(user.id);
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      refreshToken: tokens.refreshToken,
+    },
+  });
+
   return {
     id: user.id,
     email: user.email,
-    accessToken: token.accessToken,
-    refreshToken: token.refreshToken,
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
   };
 };
+
 export const loginUser = async ({
   email,
   password,
@@ -44,25 +58,100 @@ export const loginUser = async ({
 }) => {
   const user = await prisma.user.findUnique({
     where: {
-      email: email.trim().toLowerCase(),
+      email: email.trim(),
     },
   });
+
   if (!user) {
     throw new AppError("Invalid email or password", 401);
   }
+
   const isValidPassword = await comparePassword(user.passwordHash, password);
+
   if (!isValidPassword) {
     throw new AppError("Invalid email or password", 401);
   }
-  const token = generateAuthToken(user.id);
+
+  const tokens = generateAuthToken(user.id);
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      refreshToken: tokens.refreshToken,
+    },
+  });
+
   return {
     id: user.id,
     email: user.email,
-    accessToken: token.accessToken,
-    refreshToken: token.refreshToken,
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
   };
 };
 
 export const logoutService = async ({ userId }: { userId: string }) => {
-  return true;
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      refreshToken: null,
+    },
+  });
+
+  return;
+};
+
+export const refreshTokenService = async ({
+  refreshToken,
+}: {
+  refreshToken: string;
+}) => {
+  const verifyToken = decodeToken(
+    refreshToken,
+    ENV.JWT_REFRESH_TOKEN_SECRET_KEY,
+  );
+
+  const data = await prisma.user.findUnique({
+    where: {
+      id: verifyToken.id,
+    },
+    select: {
+      refreshToken: true,
+      id: true,
+    },
+  });
+  if (!data) {
+    throw new AppError("Failed to get Token data", 404);
+  }
+
+  if (data?.refreshToken !== refreshToken) {
+    throw new AppError("Invalid Token", 403);
+  }
+
+  const tokens = generateAuthToken(data?.id);
+  await prisma.user.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      refreshToken: tokens.refreshToken,
+    },
+  });
+
+  return {
+    ...tokens,
+  };
 };

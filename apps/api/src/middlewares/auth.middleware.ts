@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { AppError } from "../errors/app-errors";
 import { ENV } from "../config/env";
+import { decodeToken } from "../utils/jwt";
 
 export const authMiddleware = async (
   req: Request,
@@ -15,10 +16,8 @@ export const authMiddleware = async (
     throw new AppError("Access token is required.", 400);
   }
 
-  const decoded = jwt.verify(
-    token,
-    ENV.JWT_ACCESS_TOKEN_SECRET_KEY,
-  ) as Express.User;
+  const decoded = decodeToken(token, ENV.JWT_ACCESS_TOKEN_SECRET_KEY);
+  
   if (!decoded) {
     throw new Error("Failed to verify the token");
   }

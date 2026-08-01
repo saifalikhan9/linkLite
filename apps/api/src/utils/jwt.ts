@@ -23,6 +23,9 @@ export const generateAuthToken = (userId: string) => {
   return { accessToken, refreshToken };
 };
 
-export const decodeToken = (token: string) => {
-  jwt.decode(token);
+export const decodeToken = (token: string, sectretKey: string) => {
+  const d = jwt.verify(token, sectretKey) as Express.User;
+  console.log(d, "verilfy function");
+
+  return d;
 };
