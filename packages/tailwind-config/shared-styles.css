@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+
+:root {
+  --foreground: var(--color-neutral-900);
+  --background: var(--color-neutral-200);
+  --primary: var(--color-blue-500);
+  --primary-foreground: var(--colore-neutral-100);
+
+}
+
+@theme inline {
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --shadow-input-2: 0 0 3px 1px rgba(0, 120, 255, 0.6) inset;
+  --shadow-input-1: 0 0 3px 1px rgba(0, 120, 255, 0.2) inset;
+  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans);
+  --font-handwriting: var(--font-lovers);
+
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--background) inset;
+  -webkit-text-fill-color: var(--foreground);
+}

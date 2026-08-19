@@ -1,0 +1,20 @@
+/* Component-level styles for the UI package */
+@import "tailwindcss";
+@import "@repo/tailwind-config";
+
+:root {
+  --foreground: var(--color-neutral-900);
+  --background: var(--color-neutral-100);
+  --primary: var(--color-blue-500);
+  --primary-foreground: var(--colore-neutral-100);
+
+} 
+
+@theme inline {
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --shadow-input-2: 0 0 3px 1px rgba(0, 120, 255, 0), 0 0 3px 1px rgba(0, 120, 255, 0.6) inset;
+  --shadow-input-1: 0 1px 2px 0px rgba(0, 0, 0, 0.3), 0 0 3px 1px rgba(0, 120, 255, 0) inset;
+}
