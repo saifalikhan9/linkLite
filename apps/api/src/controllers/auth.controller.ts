@@ -7,25 +7,29 @@ import {
   refreshTokenService,
 } from "../services/auth.services";
 import { ENV } from "../config/env";
-import { decodeToken, generateAuthToken } from "../utils/jwt";
-import { prisma } from "../utils/prisma";
-import { AppError } from "../errors/app-errors";
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response) => {
-    const user = await createUser({ ...req.body });
+    const { user, tokens } = await createUser({ ...req.body });
+
+    res.cookie("refreshToken", tokens.refreshToken, {
+      httpOnly: true,
+      secure: ENV.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(201).json({
       success: true,
-      data: user,
+      data: { user, accessToken: tokens.accessToken },
     });
   },
 );
 
 export const loginController = async (req: Request, res: Response) => {
-  const user = await loginUser({ ...req.body });
+  const { user, tokens } = await loginUser({ ...req.body });
 
-  res.cookie("refreshToken", user.refreshToken, {
+  res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
     secure: ENV.NODE_ENV === "production",
     sameSite: "strict",
@@ -35,30 +39,33 @@ export const loginController = async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     data: {
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-      token: user.accessToken,
+      user,
+      accessToken: tokens.accessToken,
     },
   });
 };
 
 export const logoutController = async (req: Request, res: Response) => {
+
+  const refeshToken = req.cookies.refreshToken
   await logoutService({
-    userId: req.user?.id!,
+    refeshToken
   });
 
-  return res.status(204).send();
+  res.clearCookie("refeshToken");
+
+  return res.status(201).json({
+    success: true,
+    message: "Logged out Successfully",
+    data: null,
+  });
 };
 
 export const refreshTokenController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
 
-
-  const data = await refreshTokenService({refreshToken});
-  console.log(data,"data");
-  
+  const data = await refreshTokenService({ refreshToken });
+  // console.log(data, "data");
 
   res.cookie("refreshToken", data.refreshToken, {
     httpOnly: true,

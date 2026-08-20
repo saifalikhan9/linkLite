@@ -5,19 +5,36 @@ import { Input } from "@repo/ui/input";
 import Link from "next/link";
 import { useState } from "react";
 
+import axios from "axios";
+import { useToast } from "@repo/ui/index";
+import { signup } from "@/services/auth.service";
+import { ApiErrorResponse } from "@/types/ApiErrorTypes";
+
 export default function Page() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const toast = useToast();
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log({
-      email,
-      name,
-      password,
-    });
+    try {
+      setIsLoading(true);
+      const data = await signup({ name, email, password });
+      console.log(data);
+    } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const message = error.response?.data.message ?? "Something went wrong";
+        toast.error(message);
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,7 +82,9 @@ export default function Page() {
               />
             </div>
             <div className="w-full ">
-              <Button type="submit">Create</Button>
+              <Button disabled={isLoading} type="submit">
+                Create
+              </Button>
               <p
                 className="relative flex items-center justify-center gap-3 text-center
   before:h-px before:flex-1 before:bg-neutral-400 before:content-['']

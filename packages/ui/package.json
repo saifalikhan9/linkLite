@@ -35,5 +35,11 @@
     "tailwind-merge": "^3.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.7.0",
+    "lucide-react": "^1.33.0",
+    "motion": "^13.1.0",
+    "tailwindcss-animate": "^1.0.7"
   }
 }

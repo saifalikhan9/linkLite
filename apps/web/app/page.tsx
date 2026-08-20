@@ -1,7 +1,7 @@
 import { Button } from "@repo/ui/button";
 import { Input } from "@repo/ui/input";
-import Link from "next/link";
-import { Navbar } from "./components/navbar";
+import { Navbar } from "@/components/navbar";
+
 
 export default function Page() {
   return (

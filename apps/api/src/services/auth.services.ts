@@ -42,10 +42,8 @@ export const createUser = async ({
   });
 
   return {
-    id: user.id,
-    email: user.email,
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
+    user: { id: user.id, email: user.email },
+    tokens,
   };
 };
 
@@ -84,27 +82,29 @@ export const loginUser = async ({
   });
 
   return {
-    id: user.id,
-    email: user.email,
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
+    user: { id: user.id, email: user.email },
+    tokens,
   };
 };
 
-export const logoutService = async ({ userId }: { userId: string }) => {
-  const user = await prisma.user.findUnique({
+export const logoutService = async ({
+  refeshToken,
+}: {
+  refeshToken: string;
+}) => {
+  const user = await prisma.user.findFirst({
     where: {
-      id: userId,
+      refreshToken: refeshToken,
     },
   });
 
   if (!user) {
-    throw new AppError("User not found", 404);
+    throw new AppError("Invalid Refresh Token", 404);
   }
 
   await prisma.user.update({
     where: {
-      id: userId,
+      id: user.id,
     },
     data: {
       refreshToken: null,

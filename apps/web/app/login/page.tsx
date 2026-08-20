@@ -1,21 +1,50 @@
 "use client";
 
+import { login } from "@/services/auth.service";
+import { ApiErrorResponse } from "@/types/ApiErrorTypes";
 import { Button } from "@repo/ui/button";
 import { Input } from "@repo/ui/input";
+import axios from "axios";
 import Link from "next/link";
 import { useState } from "react";
+import { useToast } from "@repo/ui/index";
+import { useAuthStore } from "@/store/auth.store";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const toast = useToast();
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log({
-      email,
-      password,
-    });
+    try {
+      setIsLoading(true);
+
+      const data = await login({ email, password });
+      if (data.success === true) {
+        useAuthStore.getState().setAccessToken(data.data.accessToken);
+
+        toast.success("Logged in sccessfully");
+        setTimeout(() => {
+          router.push("/");
+        }, 3000);
+      }
+    } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const message = error.response?.data.message ?? "Something went wrong";
+
+        toast.error(message);
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,7 +81,9 @@ export default function Page() {
               />
             </div>
             <div className="w-full ">
-              <Button type="submit">Login</Button>
+              <Button disabled={isLoading} type="submit">
+                Login
+              </Button>
               <p
                 className="relative flex items-center justify-center gap-3 text-center
   before:h-px before:flex-1 before:bg-neutral-400 before:content-['']

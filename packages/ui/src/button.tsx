@@ -38,7 +38,6 @@ const buttonVariants = cva(
           "ring-1 ring-red-500",
         ].join(" "),
         outline: [
-          "",
           "text-neutral-800",
           "text-shadow-xs text-shadow-neutral-400",
           "border border-neutral-300",
@@ -46,11 +45,19 @@ const buttonVariants = cva(
           "shadow-[inset_0_0_3px_1px_rgba(0,0,0,0.075)]",
           "hover:shadow-[inset_0_0_3px_1px_rgba(0,0,0,0.25)]",
         ].join(" "),
+        ghost:
+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
       },
 
       size: {
         default: "px-3 py-1 text-base",
         sm: "px-3 py-1 text-sm",
+        icon: "size-8",
+        "icon-xs":
+          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm":
+          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
+        "icon-lg": "size-9",
       },
     },
     defaultVariants: {
@@ -65,7 +72,7 @@ export interface ButtonProps
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-export function Button({ className, variant, size, ...props }: ButtonProps){
+export function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
     <button
       className={cn(buttonVariants({ variant, size }), className)}

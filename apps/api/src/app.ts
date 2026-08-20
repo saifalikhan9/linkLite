@@ -1,5 +1,6 @@
 import express from "express";
-import cookieParser  from "cookie-parser"
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import healthRouter from "./routes/health.route";
 import authRouter from "./routes/auth.route";
@@ -9,11 +10,16 @@ import redirectRouter from "./routes/redirect.router";
 import { errorHandler } from "./errors/error-handlers";
 import { notFound } from "./middlewares/not-found";
 
-
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 app.use("/health", healthRouter);
 app.use("/auth", authRouter);
