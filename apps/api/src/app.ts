@@ -21,10 +21,10 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/health", healthRouter);
-app.use("/auth", authRouter);
-app.use("/urls", urlRouter);
-app.use("/", redirectRouter);
+app.use("/api/v1/health", healthRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/urls", urlRouter);
+app.use("/r", redirectRouter);
 
 app.use(notFound);
 app.use(errorHandler);
