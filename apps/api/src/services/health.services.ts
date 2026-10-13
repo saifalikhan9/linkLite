@@ -1,5 +1,6 @@
 import os from "node:os";
-import { prisma } from "../utils/prisma";
+import { prisma } from "../lib/prisma";
+import { env } from "../config/env";
 
 export const healthService = async () => {
   let database: "up" | "down" = "up";
@@ -7,6 +8,7 @@ export const healthService = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`;
   } catch (error) {
+    
     database = "down";
   }
 
@@ -14,7 +16,7 @@ export const healthService = async () => {
     status: database === "up" ? "ok" : "degraded",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || "development",
+    environment: env.NODE_ENV || "development",
     hostname: os.hostname(),
     nodeVersion: process.version,
     memory: process.memoryUsage(),

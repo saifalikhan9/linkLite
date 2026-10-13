@@ -1,2 +1,13 @@
 @import "tailwindcss";
 @import "@repo/tailwind-config";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: #faf9f6;
+    color: #171717;
+  }
+}

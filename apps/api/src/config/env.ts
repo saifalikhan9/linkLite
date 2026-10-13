@@ -1,30 +1,41 @@
-import { z } from "zod";
-import dotenv from "dotenv";
 
-dotenv.config();
+import "dotenv/config";
+import { z } from "zod";
+import { logger } from "../bootstrap/logger";
 
 const envSchema = z.object({
-  PORT: z.coerce.number().positive().default(4000),
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
 
-  DATABASE_URL: z.string().min(1),
+  PORT: z.coerce.number().int().min(1).max(65535).default(4000),
 
-  JWT_ACCESS_TOKEN_SECRET_KEY: z.string("please provide the access secret key"),
+  JWT_ACCESS_TOKEN_SECRET_KEY: z
+    .string()
+    .min(1, "JWT_ACCESS_TOKEN_SECRET_KEY is required"),
 
-  JWT_REFRESH_TOKEN_SECRET_KEY: z.string(
-    "please provide the refresh secret key",
-  ),
-  BASE62_SECRET_KEY: z.string("please provide the base62 secret key"),
+  JWT_REFRESH_TOKEN_SECRET_KEY: z
+    .string()
+    .min(1, "JWT_REFRESH_TOKEN_SECRET_KEY is required"),
+
+  BASE62_SECRET_KEY: z
+    .string()
+    .min(1, "BASE62_SECRET_KEY is required"),
 });
 
-const parsedEnv = envSchema.safeParse(process.env);
+const result = envSchema.safeParse(process.env);
 
-if (!parsedEnv.success) {
-  console.error(parsedEnv.error.message);
+if (!result.success) {
+  logger.error("Environment validation failed", {
+    errors: result.error.issues.map((issue) => ({
+      field: issue.path.join("."),
+      message: issue.message,
+    })),
+  });
 
   process.exit(1);
 }
 
-export const ENV = parsedEnv.data;
+export const env = Object.freeze(result.data);

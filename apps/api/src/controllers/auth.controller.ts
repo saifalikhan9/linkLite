@@ -6,7 +6,7 @@ import {
   logoutService,
   refreshTokenService,
 } from "../services/auth.services";
-import { ENV } from "../config/env";
+import { env } from "../config/env";
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -14,7 +14,7 @@ export const registerController = asyncHandler(
 
     res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
-      secure: ENV.NODE_ENV === "production",
+      secure: env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -31,7 +31,7 @@ export const loginController = async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
-    secure: ENV.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -69,7 +69,7 @@ export const refreshTokenController = async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", data.refreshToken, {
     httpOnly: true,
-    secure: ENV.NODE_ENV === "production",
+    secure: env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });

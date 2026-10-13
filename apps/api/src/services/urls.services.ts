@@ -1,10 +1,11 @@
 import { customAlphabet } from "nanoid";
-import { prisma } from "../utils/prisma";
+import { prisma } from "../lib/prisma";
 import { AppError } from "../errors/app-errors";
+import { generateGuestToken } from "../utils/generateGuestToken";
 
 const alphabet =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-const generateShortCode = customAlphabet(alphabet, 6);
+const generateShortCode =   customAlphabet(alphabet, 6);
 
 export const urlShortnerService = async ({
   originalUrl,
@@ -31,6 +32,71 @@ export const urlShortnerService = async ({
   };
 };
 
+export const guestUrlShortnerService = async ({
+  originalUrl,
+  guestToken,
+}: {
+  originalUrl: string;
+  guestToken?: string;
+}) => {
+  const shortCode = generateShortCode();
+
+  if (!guestToken) {
+    const newGuestToken = generateGuestToken();
+
+    const guest = await prisma.guest.create({
+      data: {
+        guestToken: newGuestToken,
+      },
+    });
+
+    const url = await prisma.url.create({
+      data: {
+        guestId: guest.id,
+        originalUrl,
+        shortCode,
+      },
+    });
+
+    return {
+      id: url.id,
+      originalUrl: url.originalUrl,
+      shortCode: url.shortCode,
+      guestToken: newGuestToken,
+    };
+  } else {
+    let guest = await prisma.guest.findUnique({
+      where: {
+        guestToken,
+      },
+    });
+
+    let currentGuestToken = guestToken;
+    if (!guest) {
+      currentGuestToken = generateGuestToken();
+      guest = await prisma.guest.create({
+        data: {
+          guestToken: currentGuestToken,
+        },
+      });
+    }
+
+    const url = await prisma.url.create({
+      data: {
+        guestId: guest.id,
+        originalUrl,
+        shortCode,
+      },
+    });
+
+    return {
+      id: url.id,
+      originalUrl: url.originalUrl,
+      shortCode: url.shortCode,
+      guestToken: currentGuestToken,
+    };
+  }
+};
 export const redirectUrlService = async ({
   shortCode,
 }: {
@@ -110,7 +176,6 @@ export const editUrlService = async ({
     },
     data: {
       originalUrl,
-      
     },
   });
   return {

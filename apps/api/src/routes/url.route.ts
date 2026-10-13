@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import {
   shortURL,
+  guestShortURL,
   getUserUrlsController,
   editUrlController,
   deleteUrlController,
@@ -11,6 +12,8 @@ import { validateSchema } from "../middlewares/validateSchema";
 import { urlSchema } from "../schema/url.schema";
 
 const router = Router();
+router.post("/guest",asyncHandler(guestShortURL));
+
 router.post(
   "/",
   authMiddleware,

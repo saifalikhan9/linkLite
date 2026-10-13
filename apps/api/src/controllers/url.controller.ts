@@ -5,14 +5,37 @@ import {
   getUserUrlsService,
   redirectUrlService,
   urlShortnerService,
+  guestUrlShortnerService
 } from "../services/urls.services";
 import { AppError } from "../errors/app-errors";
+import { env } from "../config/env";
 
 export const shortURL = async (req: Request, res: Response) => {
   const data = await urlShortnerService({
     originalUrl: req.body.originalUrl,
     userId: req.user?.id!,
   });
+
+  return res.status(201).json({
+    status: true,
+    data,
+  });
+};
+
+export const guestShortURL = async (req: Request, res: Response) => {
+  const data = await guestUrlShortnerService({
+    originalUrl: req.body.originalUrl,
+    guestToken: req.cookies?.guestToken,
+  });
+
+  if (data.guestToken) {
+    res.cookie("guestToken", data.guestToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+  }
 
   return res.status(201).json({
     status: true,

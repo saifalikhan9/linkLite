@@ -1,8 +1,8 @@
-import { ENV } from "../config/env";
+import { env } from "../config/env";
 import { AppError } from "../errors/app-errors";
 import { comparePassword, hashPassword } from "../utils/hashPassword";
 import { decodeToken, generateAuthToken } from "../utils/jwt";
-import { prisma } from "../utils/prisma";
+import { prisma } from "../lib/prisma";
 
 export const createUser = async ({
   password,
@@ -121,7 +121,7 @@ export const refreshTokenService = async ({
 }) => {
   const verifyToken = decodeToken(
     refreshToken,
-    ENV.JWT_REFRESH_TOKEN_SECRET_KEY,
+    env.JWT_REFRESH_TOKEN_SECRET_KEY,
   );
 
   const data = await prisma.user.findUnique({
